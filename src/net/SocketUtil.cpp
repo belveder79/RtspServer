@@ -9,12 +9,12 @@ using namespace xop;
 
 bool SocketUtil::Bind(SOCKET sockfd, std::string ip, uint16_t port)
 {
-    struct sockaddr_in addr = {0};			  
-    addr.sin_family = AF_INET;		  
-    addr.sin_addr.s_addr = inet_addr(ip.c_str()); 
-    addr.sin_port = htons(port);  
+    struct sockaddr_in addr = {0};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = inet_addr(ip.c_str());
+    addr.sin_port = htons(port);
 
-    if(::bind(sockfd, (struct sockaddr*)&addr, sizeof addr) == SOCKET_ERROR) {      
+    if(::bind(sockfd, (struct sockaddr*)&addr, sizeof addr) == SOCKET_ERROR) {
         return false;
     }
 
@@ -23,7 +23,7 @@ bool SocketUtil::Bind(SOCKET sockfd, std::string ip, uint16_t port)
 
 void SocketUtil::SetNonBlock(SOCKET fd)
 {
-#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__)
+#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
     int flags = fcntl(fd, F_GETFL, 0);
     fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 #elif defined(WIN32) || defined(_WIN32)
@@ -34,7 +34,7 @@ void SocketUtil::SetNonBlock(SOCKET fd)
 
 void SocketUtil::SetBlock(SOCKET fd, int write_timeout)
 {
-#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__)
+#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
     int flags = fcntl(fd, F_GETFL, 0);
     fcntl(fd, F_SETFL, flags&(~O_NONBLOCK));
 #elif defined(WIN32) || defined(_WIN32)
@@ -45,14 +45,14 @@ void SocketUtil::SetBlock(SOCKET fd, int write_timeout)
     if(write_timeout > 0)
     {
 #ifdef SO_SNDTIMEO
-#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__)
+#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
     struct timeval tv = {write_timeout/1000, (write_timeout%1000)*1000};
     setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&tv, sizeof tv);
 #elif defined(WIN32) || defined(_WIN32)
     unsigned long ms = (unsigned long)write_timeout;
     setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&ms, sizeof(unsigned long));
 #else
-#endif		
+#endif
 #endif
 	}
 }
@@ -68,7 +68,7 @@ void SocketUtil::SetReusePort(SOCKET sockfd)
 #ifdef SO_REUSEPORT
     int on = 1;
     setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, (const char*)&on, sizeof(on));
-#endif	
+#endif
 }
 
 void SocketUtil::SetNoDelay(SOCKET sockfd)
@@ -100,7 +100,7 @@ void SocketUtil::SetSendBufSize(SOCKET sockfd, int size)
 
 void SocketUtil::SetRecvBufSize(SOCKET sockfd, int size)
 {
-    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&size, sizeof(size)) < 0) 
+    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&size, sizeof(size)) < 0)
       std::cerr << "Error setting SO_RCVBUF to " << size << std::endl;
 }
 
@@ -168,7 +168,7 @@ int SocketUtil::GetPeerAddr(SOCKET sockfd, struct sockaddr_in *addr)
 
 void SocketUtil::Close(SOCKET sockfd)
 {
-#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__)
+#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
     ::close(sockfd);
 #elif defined(WIN32) || defined(_WIN32)
     ::closesocket(sockfd);
@@ -189,7 +189,7 @@ bool SocketUtil::Connect(SOCKET sockfd, std::string ip, uint16_t port, int timeo
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = inet_addr(ip.c_str());
 
-	if (::connect(sockfd, (struct sockaddr*)&addr, addrlen) == SOCKET_ERROR) {		
+	if (::connect(sockfd, (struct sockaddr*)&addr, addrlen) == SOCKET_ERROR) {
 		if (timeout > 0) {
             is_connected = false;
 			fd_set fd_write;
@@ -204,9 +204,8 @@ bool SocketUtil::Connect(SOCKET sockfd, std::string ip, uint16_t port, int timeo
 		}
 		else {
             is_connected = false;
-		}		
+		}
 	}
-	
+
 	return is_connected;
 }
-

@@ -10,7 +10,7 @@
 #include "H264Source.h"
 #include <cstdio>
 #include <chrono>
-#if defined(__linux) || defined(__linux__)
+#if defined(__linux) || defined(__linux__) || defined(__APPLE__)
 #include <sys/time.h>
 #endif
 
@@ -125,7 +125,7 @@ bool H264Source::HandleFrame(MediaChannelId channel_id, AVFrame frame)
 
 int64_t H264Source::GetTimestamp()
 {
-/* #if defined(__linux) || defined(__linux__)
+/* #if defined(__linux) || defined(__linux__) || defined(__APPLE__)
     struct timeval tv = {0};
     gettimeofday(&tv, NULL);
     uint32_t ts = ((tv.tv_sec*1000)+((tv.tv_usec+500)/1000))*90; // 90: _clockRate/1000;

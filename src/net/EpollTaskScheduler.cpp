@@ -6,6 +6,7 @@
 #if defined(__linux) || defined(__linux__)
 #include <sys/epoll.h>
 #include <errno.h>
+#elif defined(__APPLE__)
 #endif
 
 using namespace xop;
@@ -15,6 +16,8 @@ EpollTaskScheduler::EpollTaskScheduler(int id)
 {
 #if defined(__linux) || defined(__linux__)
     epollfd_ = epoll_create(1024);
+#elif  defined(__APPLE__)
+    
  #endif
     this->UpdateChannel(wakeup_channel_);
 }
@@ -43,7 +46,9 @@ void EpollTaskScheduler::UpdateChannel(ChannelPtr channel)
 			channels_.emplace(fd, channel);
 			Update(EPOLL_CTL_ADD, channel);
 		}	
-	}	
+	}
+#elif  defined(__APPLE__)
+    
 #endif
 }
 
@@ -60,6 +65,8 @@ void EpollTaskScheduler::Update(int operation, ChannelPtr& channel)
 	if(::epoll_ctl(epollfd_, operation, channel->GetSocket(), &event) < 0) {
 
 	}
+#elif  defined(__APPLE__)
+    
 #endif
 }
 
@@ -73,6 +80,8 @@ void EpollTaskScheduler::RemoveChannel(ChannelPtr& channel)
 		Update(EPOLL_CTL_DEL, channel);
 		channels_.erase(fd);
 	}
+#elif  defined(__APPLE__)
+    
 #endif
 }
 
@@ -95,6 +104,8 @@ bool EpollTaskScheduler::HandleEvent(int timeout)
 		}
 	}		
 	return true;
+#elif  defined(__APPLE__)
+    return false;
 #else
     return false;
 #endif

@@ -58,9 +58,9 @@ void EventLoop::Loop()
 
 	for (uint32_t n = 0; n < num_threads_; n++)
 	{
-#if defined(__linux) || defined(__linux__) || defined(__APPLE__)
+#if defined(__linux) || defined(__linux__)
 		std::shared_ptr<TaskScheduler> task_scheduler_ptr(new EpollTaskScheduler(n));
-#elif defined(WIN32) || defined(_WIN32) || defined(__FreeBSD__)
+#elif defined(WIN32) || defined(_WIN32) || defined(__FreeBSD__) || defined(__APPLE__)
 		std::shared_ptr<TaskScheduler> task_scheduler_ptr(new SelectTaskScheduler(n));
 #endif
 		task_schedulers_.push_back(task_scheduler_ptr);

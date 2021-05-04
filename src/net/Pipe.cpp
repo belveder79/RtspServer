@@ -7,6 +7,10 @@
 #include <string>
 #include <array>
 
+#if defined(__APPLE__)
+  #include <unistd.h>
+#endif
+
 using namespace xop;
 
 Pipe::Pipe()
@@ -55,6 +59,16 @@ bool Pipe::Create()
 	if (pipe2(pipe_fd_, O_NONBLOCK | O_CLOEXEC) < 0) {
 		return false;
 	}
+#elif defined(__APPLE__)
+    if(pipe(pipe_fd_) < 0)
+        return false;
+    if(fcntl(pipe_fd_[0],F_SETFL,O_NONBLOCK | O_CLOEXEC) < 0)
+       return false;
+    if(fcntl(pipe_fd_[1],F_SETFL,O_NONBLOCK | O_CLOEXEC) < 0)
+        return false;
+    //if (pipe2(pipe_fd_, O_NONBLOCK | O_CLOEXEC) < 0) {
+    //    return false;
+    //}
 #endif
 	return true;
 }
@@ -63,7 +77,7 @@ int Pipe::Write(void *buf, int len)
 {
 #if defined(WIN32) || defined(_WIN32) 
     return ::send(pipe_fd_[1], (char *)buf, len, 0);
-#elif defined(__linux) || defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
     return ::write(pipe_fd_[1], buf, len);
 #endif 
 }
@@ -72,7 +86,7 @@ int Pipe::Read(void *buf, int len)
 {
 #if defined(WIN32) || defined(_WIN32) 
     return recv(pipe_fd_[0], (char *)buf, len, 0);
-#elif defined(__linux) || defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
     return ::read(pipe_fd_[0], buf, len);
 #endif 
 }
@@ -82,7 +96,7 @@ void Pipe::Close()
 #if defined(WIN32) || defined(_WIN32) 
 	closesocket(pipe_fd_[0]);
 	closesocket(pipe_fd_[1]);
-#elif defined(__linux) || defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 	::close(pipe_fd_[0]);
 	::close(pipe_fd_[1]);
 #endif

@@ -1,4 +1,4 @@
-﻿// PHZ
+// PHZ
 // 2018-6-7
 
 #if defined(WIN32) || defined(_WIN32) 
@@ -10,7 +10,7 @@
 #include "H265Source.h"
 #include <cstdio>
 #include <chrono>
-#if defined(__linux) || defined(__linux__) 
+#if defined(__linux) || defined(__linux__)  || defined(__APPLE__)
 #include <sys/time.h>
 #endif
 
@@ -132,7 +132,7 @@ bool H265Source::HandleFrame(MediaChannelId channelId, AVFrame frame)
 
 int64_t H265Source::GetTimestamp()
 {
-/* #if defined(__linux) || defined(__linux__) 
+/* #if defined(__linux) || defined(__linux__)  || defined(__APPLE__)
 	struct timeval tv = {0};
 	gettimeofday(&tv, NULL);
 	uint32_t ts = ((tv.tv_sec*1000)+((tv.tv_usec+500)/1000))*90; // 90: _clockRate/1000;

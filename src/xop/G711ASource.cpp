@@ -1,4 +1,4 @@
-﻿// PHZ
+// PHZ
 // 2018-5-16
 
 #if defined(WIN32) || defined(_WIN32) 
@@ -9,7 +9,7 @@
 #include "G711ASource.h"
 #include <cstdio>
 #include <chrono>
-#if defined(__linux) || defined(__linux__) 
+#if defined(__linux) || defined(__linux__)  || defined(__APPLE__)
 #include <sys/time.h>
 #endif 
 

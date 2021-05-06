@@ -10,7 +10,7 @@
 #include "H264Source.h"
 #include <cstdio>
 #include <chrono>
-#if defined(__linux) || defined(__linux__) || defined(__APPLE__)
+#if defined(__linux) || defined(__linux__) || defined(__APPLE__) || defined(ANDROID)
 #include <sys/time.h>
 #endif
 
@@ -20,7 +20,7 @@ using namespace std;
 H264Source::H264Source(uint32_t framerate)
 	: framerate_(framerate)
 {
-    payload_    = 96; 
+    payload_    = 96;
     media_type_ = H264;
     clock_rate_ = 90000;
 }
@@ -54,7 +54,7 @@ bool H264Source::HandleFrame(MediaChannelId channel_id, AVFrame frame)
 
     if (frame.timestamp == 0) {
 	    frame.timestamp = GetTimestamp();
-    }    
+    }
 
     if (frame_size <= MAX_RTP_PAYLOAD_SIZE) {
       RtpPacket rtp_pkt;
@@ -62,12 +62,12 @@ bool H264Source::HandleFrame(MediaChannelId channel_id, AVFrame frame)
       rtp_pkt.timestamp = frame.timestamp;
       rtp_pkt.size = frame_size + 4 + RTP_HEADER_SIZE;
       rtp_pkt.last = 1;
-      memcpy(rtp_pkt.data.get()+4+RTP_HEADER_SIZE, frame_buf, frame_size); 
+      memcpy(rtp_pkt.data.get()+4+RTP_HEADER_SIZE, frame_buf, frame_size);
 
       if (send_frame_callback_) {
         if (!send_frame_callback_(channel_id, rtp_pkt)) {
           return false;
-        }               
+        }
       }
     } else {
         char FU_A[2] = {0};
@@ -115,7 +115,7 @@ bool H264Source::HandleFrame(MediaChannelId channel_id, AVFrame frame)
             if (send_frame_callback_) {
 			    if (!send_frame_callback_(channel_id, rtp_pkt)) {
 				    return false;
-			    }              
+			    }
             }
         }
     }
@@ -125,7 +125,7 @@ bool H264Source::HandleFrame(MediaChannelId channel_id, AVFrame frame)
 
 int64_t H264Source::GetTimestamp()
 {
-/* #if defined(__linux) || defined(__linux__) || defined(__APPLE__)
+/* #if defined(__linux) || defined(__linux__) || defined(__APPLE__) || defined(ANDROID)
     struct timeval tv = {0};
     gettimeofday(&tv, NULL);
     uint32_t ts = ((tv.tv_sec*1000)+((tv.tv_usec+500)/1000))*90; // 90: _clockRate/1000;
@@ -135,4 +135,3 @@ int64_t H264Source::GetTimestamp()
     return (int64_t)((time_point.time_since_epoch().count() + 500) / 1000 * 90 );
 //#endif
 }
- 

@@ -60,7 +60,7 @@ void EventLoop::Loop()
 	{
 #if defined(__linux) || defined(__linux__)
 		std::shared_ptr<TaskScheduler> task_scheduler_ptr(new EpollTaskScheduler(n));
-#elif defined(WIN32) || defined(_WIN32) || defined(__FreeBSD__) || defined(__APPLE__)
+#elif defined(WIN32) || defined(_WIN32) || defined(__FreeBSD__) || defined(__APPLE__) || defined(ANDROID)
 		std::shared_ptr<TaskScheduler> task_scheduler_ptr(new SelectTaskScheduler(n));
 #endif
 		task_schedulers_.push_back(task_scheduler_ptr);
@@ -73,7 +73,7 @@ void EventLoop::Loop()
 
 	for (auto iter : threads_)
 	{
-#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+#if defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__) || defined(ANDROID)
 
 #elif defined(WIN32) || defined(_WIN32)
 		switch (priority)

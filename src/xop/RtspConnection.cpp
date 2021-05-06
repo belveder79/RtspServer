@@ -105,7 +105,11 @@ bool RtspConnection::HandleRtspRequest(BufferReader& buffer)
 	string str(buffer.Peek(), buffer.ReadableBytes());
 	if (str.find("rtsp") != string::npos || str.find("RTSP") != string::npos)
 	{
-		std::cout << str << std::endl;
+		#if defined(ANDROID)
+		  __android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspConnection: %s",str.c_str());
+		#else
+			std::cout << str << std::endl;
+		#endif
 	}
 #endif
 
@@ -159,7 +163,11 @@ bool RtspConnection::HandleRtspResponse(BufferReader& buffer)
 #if RTSP_DEBUG
 	string str(buffer.Peek(), buffer.ReadableBytes());
 	if (str.find("rtsp") != string::npos || str.find("RTSP") != string::npos) {
-		cout << str << endl;
+		#if defined(ANDROID)
+			__android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspConnection: %s",str.c_str());
+		#else
+			cout << str << endl;
+		#endif
 	}
 #endif
 
@@ -196,7 +204,11 @@ bool RtspConnection::HandleRtspResponse(BufferReader& buffer)
 void RtspConnection::SendRtspMessage(std::shared_ptr<char> buf, uint32_t size)
 {
 #if RTSP_DEBUG
-	cout << buf.get() << endl;
+	#if defined(ANDROID)
+		__android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspConnection: %s",buf.get());
+	#else
+		cout << buf.get() << endl;
+	#endif
 #endif
 
 	this->Send(buf, size);

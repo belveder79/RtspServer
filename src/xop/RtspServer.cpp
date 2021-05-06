@@ -14,7 +14,7 @@ RtspServer::RtspServer(EventLoop* loop)
 
 RtspServer::~RtspServer()
 {
-	
+
 }
 
 std::shared_ptr<RtspServer> RtspServer::Create(xop::EventLoop* loop)
@@ -31,7 +31,7 @@ MediaSessionId RtspServer::AddSession(MediaSession* session)
         return 0;
     }
 
-    std::shared_ptr<MediaSession> media_session(session); 
+    std::shared_ptr<MediaSession> media_session(session);
     MediaSessionId sessionId = media_session->GetMediaSessionId();
 	rtsp_suffix_map_.emplace(std::move(media_session->GetRtspUrlSuffix()), sessionId);
 	media_sessions_.emplace(sessionId, std::move(media_session));
@@ -98,7 +98,9 @@ bool RtspServer::PushFrame(MediaSessionId session_id, MediaChannelId channel_id,
 }
 
 TcpConnection::Ptr RtspServer::OnConnect(SOCKET sockfd)
-{	
+{
+	#if defined(ANDROID)
+    __android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspServer: received connect request...");
+	#endif
 	return std::make_shared<RtspConnection>(shared_from_this(), event_loop_->GetTaskScheduler().get(), sockfd);
 }
-

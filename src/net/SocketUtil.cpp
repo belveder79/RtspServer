@@ -101,7 +101,11 @@ void SocketUtil::SetSendBufSize(SOCKET sockfd, int size)
 void SocketUtil::SetRecvBufSize(SOCKET sockfd, int size)
 {
     if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&size, sizeof(size)) < 0)
+    #if defined(ANDROID)
+      __android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "SocketUtil: Error setting SO_RCVBUF to %d",size);
+    #else
       std::cerr << "Error setting SO_RCVBUF to " << size << std::endl;
+    #endif
 }
 
 int SocketUtil::GetSendBufSize(SOCKET sockfd)
@@ -109,7 +113,11 @@ int SocketUtil::GetSendBufSize(SOCKET sockfd)
     int optval;
     socklen_t optlen = sizeof(optval);
     if (getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &optval, &optlen) < 0)
+    #if defined(ANDROID)
+      __android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "SocketUtil: Error getting SO_SNDBUF");
+    #else
       std::cerr << "Error getting SO_SNDBUF " << std::endl;
+    #endif
     return optval;
 }
 
@@ -118,7 +126,11 @@ int SocketUtil::GetRecvBufSize(SOCKET sockfd)
     int optval;
     socklen_t optlen = sizeof(optval);
     if (getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &optval, &optlen) < 0)
+    #if defined(ANDROID)
+      __android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "SocketUtil: Error getting SO_RCVBUF");
+    #else
       std::cerr << "Error getting SO_RCVBUF " << std::endl;
+    #endif
     return optval;
 }
 

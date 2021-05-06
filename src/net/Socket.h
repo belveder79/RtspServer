@@ -42,6 +42,13 @@
 
 #endif
 
+#if defined(ANDROID)
+	#include <android/log.h>
+	#ifndef MODULE_NAME
+		#define MODULE_NAME "RTSPSERVER"
+	#endif
+#endif
+
 #include <cstdint>
 #include <cstring>
 

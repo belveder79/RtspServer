@@ -88,7 +88,7 @@ bool RtpConnection::SetupRtpOverUdp(MediaChannelId channel_id, uint16_t rtp_port
 		if (n == 10) {
 			return false;
 		}
-        
+
 		local_rtp_port_[channel_id] = rd() & 0xfffe;
 		local_rtcp_port_[channel_id] =local_rtp_port_[channel_id] + 1;
 
@@ -109,8 +109,11 @@ bool RtpConnection::SetupRtpOverUdp(MediaChannelId channel_id, uint16_t rtp_port
 	}
 
 	SocketUtil::SetSendBufSize(rtpfd_[channel_id], 200*1024);
+#if defined(ANDROID)
+  __android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "SocketUtil: SendBufSize is %d",SocketUtil::GetSendBufSize(rtpfd_[channel_id]));
+#else
   std::cerr << "SendBufSize is " << SocketUtil::GetSendBufSize(rtpfd_[channel_id]) << std::endl;
-
+#endif
 	peer_rtp_addr_[channel_id].sin_family = AF_INET;
 	peer_rtp_addr_[channel_id].sin_addr.s_addr = peer_addr_.sin_addr.s_addr;
 	peer_rtp_addr_[channel_id].sin_port = htons(media_channel_info_[channel_id].rtp_port);
@@ -132,7 +135,7 @@ bool RtpConnection::SetupRtpOverMulticast(MediaChannelId channel_id, std::string
 		if (n == 10) {
 			return false;
 		}
-       
+
 		local_rtp_port_[channel_id] = rd() & 0xfffe;
 		rtpfd_[channel_id] = ::socket(AF_INET, SOCK_DGRAM, 0);
 		if (!SocketUtil::Bind(rtpfd_[channel_id], "0.0.0.0", local_rtp_port_[channel_id])) {
@@ -204,7 +207,7 @@ string RtpConnection::GetRtpInfo(const std::string& rtsp_url)
 		if (media_channel_info_[chn].is_setup) {
 			if (num_channel != 0) {
 				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), ",");
-			}			
+			}
 
 			snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf),
 					"url=%s/track%d;seq=0;rtptime=%u",
@@ -235,11 +238,11 @@ void RtpConnection::SetRtpHeader(MediaChannelId channel_id, RtpPacket pkt)
 }
 
 int RtpConnection::SendRtpPacket(MediaChannelId channel_id, RtpPacket pkt)
-{    
+{
 	if (is_closed_) {
 		return -1;
 	}
-   
+
 	auto conn = rtsp_connection_.lock();
 	if (!conn) {
 		return -1;
@@ -248,14 +251,14 @@ int RtpConnection::SendRtpPacket(MediaChannelId channel_id, RtpPacket pkt)
 	bool ret = rtsp_conn->task_scheduler_->AddTriggerEvent([this, channel_id, pkt] {
 		this->SetFrameType(pkt.type);
 		this->SetRtpHeader(channel_id, pkt);
-		if((media_channel_info_[channel_id].is_play || media_channel_info_[channel_id].is_record) && has_key_frame_ ) {            
+		if((media_channel_info_[channel_id].is_play || media_channel_info_[channel_id].is_record) && has_key_frame_ ) {
 			if(transport_mode_ == RTP_OVER_TCP) {
 				SendRtpOverTcp(channel_id, pkt);
 			}
 			else {
 				SendRtpOverUdp(channel_id, pkt);
 			}
-                   
+
 			//media_channel_info_[channel_id].octetCount  += pkt.size;
 			//media_channel_info_[channel_id].packetCount += 1;
 		}
@@ -285,8 +288,8 @@ int RtpConnection::SendRtpOverUdp(MediaChannelId channel_id, RtpPacket pkt)
 {
 	int ret = sendto(rtpfd_[channel_id], (const char*)pkt.data.get()+4, pkt.size-4, 0,
 					(struct sockaddr *)&(peer_rtp_addr_[channel_id]), sizeof(struct sockaddr_in));
-                   
-	if(ret < 0) {        
+
+	if(ret < 0) {
 		Teardown();
 		return -1;
 	}

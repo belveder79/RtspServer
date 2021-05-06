@@ -18,7 +18,7 @@ EpollTaskScheduler::EpollTaskScheduler(int id)
     epollfd_ = epoll_create(1024);
 #elif  defined(__APPLE__)
 
- #endif
+#endif
     this->UpdateChannel(wakeup_channel_);
 }
 

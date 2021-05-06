@@ -55,11 +55,11 @@ bool Pipe::Create()
 
 	SocketUtil::SetNonBlock(pipe_fd_[0]);
 	SocketUtil::SetNonBlock(pipe_fd_[1]);
-#elif defined(__linux) || defined(__linux__) || defined(__FreeBSD__) || defined(ANDROID)
+#elif defined(__linux) || defined(__linux__) || defined(__FreeBSD__)
 	if (pipe2(pipe_fd_, O_NONBLOCK | O_CLOEXEC) < 0) {
 		return false;
 	}
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(ANDROID)
     if(pipe(pipe_fd_) < 0)
         return false;
     if(fcntl(pipe_fd_[0],F_SETFL,O_NONBLOCK | O_CLOEXEC) < 0)

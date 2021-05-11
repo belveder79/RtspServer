@@ -110,7 +110,7 @@ bool DigestAuthenticator::Authenticate(
   if (nonce.size() > 0 && (GetResponse(nonce, cmd, url) == rtsp_request->GetAuthResponse())) {
 
 		#if defined(ANDROID)
-				__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator Authenticate success %s - %s - %s", cmd, url.c_str(), nonce.c_str());
+				__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator Authenticate success %s - %s - %s", cmd.c_str(), url.c_str(), nonce.c_str());
 		#else
 				std::cout << "DigestAuthenticator Authenticate success" <<  cmd << " - "  << url.c_str() << " - " << nonce.c_str() << std::endl;
 		#endif
@@ -119,7 +119,7 @@ bool DigestAuthenticator::Authenticate(
   } else {
 
 		#if defined(ANDROID)
-				__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator Authenticate failed %s - %s - %s", cmd, url.c_str(), nonce.c_str());
+				__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator Authenticate failed %s - %s - %s", cmd.c_str(), url.c_str(), nonce.c_str());
 		#else
 				std::cout << "DigestAuthenticator Authenticate failed" <<  cmd << " - "  << url.c_str() << " - " << nonce.c_str() << std::endl;
 		#endif

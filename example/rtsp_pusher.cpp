@@ -38,8 +38,8 @@ void sendFrameThread(xop::RtspPusher* rtspPusher, H264File* h264_file);
 
 int main(int argc, char **argv)
 {
-	if(argc != 2) {
-		printf("Usage: %s test.h264 \n", argv[0]);
+	if(argc != 3) {
+		printf("Usage: %s <h264file.h264> <rtspaddr> \n", argv[0]);
 		return 0;
 	}
 
@@ -61,10 +61,33 @@ int main(int argc, char **argv)
     std::string serverIP("127.0.0.1");
     uint16_t port = 8009;
     std::string channel("ar4-stream");
+*/
     std::string username("");
     std::string password("");
-*/
 
+    std::string rtspaddr(argv[2]);
+    size_t it = rtspaddr.find("rtsp://") + strlen("rtsp://");
+    std::string tstr = rtspaddr.substr(it,40); // should be within the first 40 chars after rtsp://
+    // std::cout << tstr << std::endl;
+    size_t it2 = tstr.find("@");
+    if(it2 != tstr.npos) {
+        size_t it2 = rtspaddr.find(":",it);
+        std::cout << "==== user: " << rtspaddr.substr(it, it2-it) << std::endl;
+        username = rtspaddr.substr(it, it2-it);
+        size_t it3 = rtspaddr.find("@",it2);
+        std::cout << "==== pass: " << rtspaddr.substr(it2+1, it3-it2-1) << std::endl;
+        password = rtspaddr.substr(it2+1, it3-it2-1);
+        it = it3+1;
+    }
+    it2 = rtspaddr.find(":", it);
+    std::cout << "==== server: " << rtspaddr.substr(it, it2-it) << std::endl;
+    std::string serverIP = rtspaddr.substr(it, it2-it);
+    size_t it3 = rtspaddr.find("/",it2+1);
+    std::cout << "==== port: " << rtspaddr.substr(it2+1, it3-it2-1) << std::endl;
+    uint16_t port = atoi(rtspaddr.substr(it2+1, it3-it2-1).c_str());
+    std::string channel(rtspaddr.substr(it3+1));
+    std::cout << "==== channel: " << channel << std::endl;
+    
 /*
     std::string serverIP("192.168.0.32");
     uint16_t port = 8554;

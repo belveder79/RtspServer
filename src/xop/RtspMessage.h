@@ -1,4 +1,4 @@
-﻿// PHZ
+// PHZ
 // 2018-6-8
 
 #ifndef XOP_RTSP_MESSAGE_H
@@ -12,8 +12,11 @@
 #include "media.h"
 #include "net/BufferReader.h"
 
+
+
 namespace xop
 {
+class Authenticator;
 
 class RtspRequest
 {
@@ -52,6 +55,9 @@ public:
 
 	Method GetMethod() const
 	{ return method_; }
+    
+    std::string GetMethodAsString() const
+    { return std::string(MethodToString[method_]); }
 
 	uint32_t GetCSeq() const;
 
@@ -118,14 +124,24 @@ public:
 		OPTIONS=0, DESCRIBE, ANNOUNCE, SETUP, RECORD, RTCP,
 		NONE, 
 	};
+    
+    const char* MethodToString[7] =
+    {
+        "OPTIONS", "DESCRIBE", "ANNOUNCE", "SETUP", "RECORD", "RTCP",
+        "NONE"
+    };
 
 	bool ParseResponse(xop::BufferReader *buffer);
 
 	Method GetMethod() const
 	{ return method_; }
+    
+    std::string GetMethodAsString() const
+    { return std::string(MethodToString[method_]); }
 
 	uint32_t GetCSeq() const
 	{ return cseq_;  }
+    void SetCSeq(uint32_t cseq) { cseq_ = cseq; }
 
 	std::string GetSession() const
 	{ return session_; }
@@ -136,12 +152,12 @@ public:
 	void SetRtspUrl(const char *url)
 	{ rtsp_url_ = std::string(url); }
 
-	int BuildOptionReq(const char* buf, int buf_size);
-	int BuildDescribeReq(const char* buf, int buf_size);
-	int BuildAnnounceReq(const char* buf, int buf_size, const char *sdp);
-	int BuildSetupTcpReq(const char* buf, int buf_size, int channel);
-	int BuildRecordReq(const char* buf, int buf_size);
-
+	int BuildOptionReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth = nullptr);
+	int BuildDescribeReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
+	int BuildAnnounceReq(const char* buf, int buf_size, const char *sdp, std::string& nonce, Authenticator* auth);
+	int BuildSetupTcpReq(const char* buf, int buf_size, int channel, std::string& nonce, Authenticator* auth);
+	int BuildRecordReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
+    
 private:
 	Method method_;
 	uint32_t cseq_ = 0;

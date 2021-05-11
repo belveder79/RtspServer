@@ -57,13 +57,14 @@ int main(int argc, char **argv)
 	// session->AddSource(xop::channel_1, xop::AACSource::CreateNew(44100, 2, false));
 	rtsp_pusher->AddSession(session);
 
-    // To: "5b47756573745d2047656e65726f757320636f617469" <sip:609a21850ed6ec0012c02b4c@integrations.visocon.com>;tag=9dd61ff61e802d8e2bef5f14621ef3c2.cc43
-  
-	std::string serverIP("54.155.36.131");
-	uint16_t port = 8554;
-	std::string channel("live/myStream?playid=1&replaces=609a63c11386cc001241d89a@integrations.visocon.com");
-	std::string username("visoconEyesOn");
-	std::string password("VdtxeQnwIaZmaQLc");
+/*
+    std::string serverIP("127.0.0.1");
+    uint16_t port = 8009;
+    std::string channel("ar4-stream");
+    std::string username("");
+    std::string password("");
+*/
+
 /*
     std::string serverIP("192.168.0.32");
     uint16_t port = 8554;

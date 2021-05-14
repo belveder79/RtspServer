@@ -10,11 +10,13 @@ DigestAuthenticator::DigestAuthenticator(std::string realm, std::string username
 	, username_(username)
 	, password_(password)
 {
+#ifdef DEBUG
 	#if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator Constructor");
 	#else
 			std::cout << "DigestAuthenticator Constructor" <<  std::endl;
 	#endif
+#endif
 }
 
 DigestAuthenticator::~DigestAuthenticator()
@@ -24,12 +26,13 @@ DigestAuthenticator::~DigestAuthenticator()
 
 std::string DigestAuthenticator::GetNonce()
 {
+#ifdef DEBUG
 	#if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator GetNonce");
 	#else
 			std::cout << "DigestAuthenticator GetNonce" <<  std::endl;
 	#endif
-
+#endif
 	return md5::generate_nonce();
 }
 
@@ -40,13 +43,13 @@ std::string DigestAuthenticator::GetResponse(std::string nonce, std::string cmd,
 	auto hex1 = md5::md5_hash_hex(username_ + ":" + realm_ + ":" + password_);
 	auto hex2 = md5::md5_hash_hex(cmd + ":" + url);
 	auto response = md5::md5_hash_hex(hex1 + ":" + nonce + ":" + hex2);
-
+#ifdef DEBUG
 	#if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator GetResponse");
 	#else
 			std::cout << "DigestAuthenticator GetResponse" <<  std::endl;
 	#endif
-
+#endif
 
 	return response;
 }
@@ -85,7 +88,7 @@ bool DigestAuthenticator::HandleUnauthorized(BufferReader* buffer, std::string& 
             std::string line(start, firstCrlf);
             if(line.find("Unauthorized") != line.npos)
                 unauthorized = true;
-            
+
             if(line.find("WWW-Authenticate") != line.npos && line.find("Digest") != line.npos)
             {
                 if(parseParam(line, "realm", realm_) &&
@@ -107,23 +110,24 @@ bool DigestAuthenticator::Authenticate(
   std::string cmd = rtsp_request->MethodToString[rtsp_request->GetMethod()];
   std::string url = rtsp_request->GetRtspUrl();
 
-  if (nonce.size() > 0 && (GetResponse(nonce, cmd, url) == rtsp_request->GetAuthResponse())) {
-
+  if (nonce.size() > 0 && (GetResponse(nonce, cmd, url) == rtsp_request->GetAuthResponse()))
+	{
+#ifdef DEBUG
 		#if defined(ANDROID)
 				__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator Authenticate success %s - %s - %s", cmd.c_str(), url.c_str(), nonce.c_str());
 		#else
 				std::cout << "DigestAuthenticator Authenticate success" <<  cmd << " - "  << url.c_str() << " - " << nonce.c_str() << std::endl;
 		#endif
-
+#endif
     return true;
   } else {
-
+#ifdef DEBUG
 		#if defined(ANDROID)
 				__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator Authenticate failed %s - %s - %s", cmd.c_str(), url.c_str(), nonce.c_str());
 		#else
 				std::cout << "DigestAuthenticator Authenticate failed" <<  cmd << " - "  << url.c_str() << " - " << nonce.c_str() << std::endl;
 		#endif
-
+#endif
     return false;
   }
 }
@@ -134,10 +138,12 @@ size_t DigestAuthenticator::GetFailedResponse(
     size_t size)
 {
   std::string nonce = md5::generate_nonce();
+#ifdef DEBUG
 #if defined(ANDROID)
 		__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "DigestAuthenticator GetFailedResponse %s - %s - %s", buf.get(), realm_.c_str(), nonce.c_str());
 #else
 		std::cout << "DigestAuthenticator GetFailedResponse" <<  buf.get() << " - "  << realm_.c_str() << " - " << nonce.c_str() << std::endl;
+#endif
 #endif
   return rtsp_request->BuildUnauthorizedRes(buf.get(), size, realm_.c_str(), nonce.c_str());
 }

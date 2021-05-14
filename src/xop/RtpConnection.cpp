@@ -109,10 +109,12 @@ bool RtpConnection::SetupRtpOverUdp(MediaChannelId channel_id, uint16_t rtp_port
 	}
 
 	SocketUtil::SetSendBufSize(rtpfd_[channel_id], 200*1024);
+#ifdef DEBUG
 #if defined(ANDROID)
   __android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "SocketUtil: SendBufSize is %d",SocketUtil::GetSendBufSize(rtpfd_[channel_id]));
 #else
   std::cerr << "SendBufSize is " << SocketUtil::GetSendBufSize(rtpfd_[channel_id]) << std::endl;
+#endif
 #endif
 	peer_rtp_addr_[channel_id].sin_family = AF_INET;
 	peer_rtp_addr_[channel_id].sin_addr.s_addr = peer_addr_.sin_addr.s_addr;
@@ -192,7 +194,7 @@ void RtpConnection::AssembleRTCPMessage()
 //       |                             ....                              |
 //       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-    
+
 // RTCP:
 //          0                   1                   2                   3
 //          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -210,7 +212,7 @@ void RtpConnection::AssembleRTCPMessage()
 //         |                     sender's packet count                     |
 //         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //         |                      sender's octet count                     |
-    
+
     RtpPacket rpkt;
     rtcp_packet *pkt = reinterpret_cast<xop::rtcp_packet*>(rpkt.data.get() + 4);
     pkt->header.version = 2;
@@ -221,14 +223,14 @@ void RtpConnection::AssembleRTCPMessage()
     pkt->ssrc = media_channel_info_[0].rtp_header.ssrc;
     //
     int32_t* blk = (int32_t*)(rpkt.data.get() + 12); // + 12);
-    
+
     const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
     uint32_t secs = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
     uint64_t nsecs = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count() - (1e9 * secs);
-    
+
     auto time_point = chrono::time_point_cast<chrono::microseconds>(chrono::steady_clock::now());
     uint32_t rtptm = (int64_t)((time_point.time_since_epoch().count() + 500) / 1000 * 90 );
-    
+
     // usecs = (uint32)((((double)lsw) * 1000000.0) / ((uint32)(~0)))
     // NTP time stamp is seconds since 1970 as MSW
     blk[0] = htonl(secs + NTP_EPOCH_OFFSET);
@@ -236,10 +238,10 @@ void RtpConnection::AssembleRTCPMessage()
     blk[2] = htonl(rtptm); // is based on 10 microsecond intervals
     blk[3] = htonl(0x00);
     blk[4] = htonl(0x00);
-    
+
     rpkt.last = 1;
     rpkt.size = 32;
-    
+
     SendRtpPacket(xop::channel_0, rpkt, true);
 }
 
@@ -251,7 +253,7 @@ void RtpConnection::Record()
 			media_channel_info_[chn].is_play = true;
 		}
     }
-    
+
     AssembleRTCPMessage();
 }
 
@@ -374,7 +376,7 @@ int RtpConnection::SendRtpOverTcp(MediaChannelId channel_id, RtpPacket pkt, bool
     }
     printf("===================================\n");
     */
-    
+
 	conn->Send((char*)rtpPktPtr, pkt.size);
 	return pkt.size;
 }

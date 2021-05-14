@@ -36,12 +36,15 @@ void TcpConnection::Send(std::shared_ptr<char> data, uint32_t size)
 {
 	if (!is_closed_) {
 		mutex_.lock();
-		if (!write_buffer_->Append(data, size))
+		if (!write_buffer_->Append(data, size)) {
+#ifdef DEBUG
 #if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "TcpConnection: write_buffer failed...");
 #else
       std::cerr << "write_buffer failed" << std::endl;
 #endif
+#endif
+		}
 		mutex_.unlock();
 
 		this->HandleWrite();
@@ -52,12 +55,15 @@ void TcpConnection::Send(const char *data, uint32_t size)
 {
 	if (!is_closed_) {
 		mutex_.lock();
-		if ( !write_buffer_->Append(data, size))
+		if ( !write_buffer_->Append(data, size)) {
+#ifdef DEBUG
 #if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "TcpConnection: write_buffer failed...");
 #else
       std::cerr << "write_buffer failed" << std::endl;
 #endif
+#endif
+		}
 		mutex_.unlock();
 
 		this->HandleWrite();

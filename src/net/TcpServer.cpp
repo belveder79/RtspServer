@@ -74,9 +74,11 @@ void TcpServer::Stop()
 
 TcpConnection::Ptr TcpServer::OnConnect(SOCKET sockfd)
 {
+#ifdef DEBUG
 	#if defined(ANDROID)
     __android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "TcpServer: received connect request...");
 	#endif
+#endif
 	return std::make_shared<TcpConnection>(event_loop_->GetTaskScheduler().get(), sockfd);
 }
 

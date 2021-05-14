@@ -99,8 +99,10 @@ bool RtspServer::PushFrame(MediaSessionId session_id, MediaChannelId channel_id,
 
 TcpConnection::Ptr RtspServer::OnConnect(SOCKET sockfd)
 {
+#if DEBUG
 	#if defined(ANDROID)
     __android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspServer: received connect request...");
 	#endif
+#endif
 	return std::make_shared<RtspConnection>(shared_from_this(), event_loop_->GetTaskScheduler().get(), sockfd);
 }

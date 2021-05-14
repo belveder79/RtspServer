@@ -8,7 +8,7 @@
 #include "net/SocketUtil.h"
 
 #define USER_AGENT "Lavf57.83.100" //"-_-"
-#define RTSP_DEBUG 1
+#define RTSP_DEBUG 0
 #define MAX_RTSP_MESSAGE_SIZE 2048
 
 using namespace xop;
@@ -22,13 +22,13 @@ RtspConnection::RtspConnection(std::shared_ptr<Rtsp> rtsp, TaskScheduler *task_s
 	, rtsp_request_(new RtspRequest)
 	, rtsp_response_(new RtspResponse)
 {
-
+#ifdef RTSP_DEBUG
 	#if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "RtspRequest Constructor");
 	#else
 			std::cout << "RtspConnection Constructor" <<  std::endl;
 	#endif
-
+#endif
 	this->SetReadCallback([this](std::shared_ptr<TcpConnection> conn, xop::BufferReader& buffer) {
 		return this->OnRead(buffer);
 	});
@@ -201,18 +201,20 @@ bool RtspConnection::HandleRtspResponse(BufferReader& buffer)
 		}
 	}
 	else {
+#if RTSP_DEBUG
 		#if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspConnection::HandleRtspResponse: ParseResponse failed!");
 		#else
 			cout << "RtspConnection::HandleRtspResponse: ParseResponse failed!" << endl;
 		#endif
+#endif
 		//=========================================================================
 		if (conn_mode_ == RTSP_PUSHER)
 		{
             // check if unauthorized
             // if yes, try fix it with authenticator
             // else just return false
-            
+
             // parse auth info
             if (authenticator_!=nullptr)
             {
@@ -221,11 +223,13 @@ bool RtspConnection::HandleRtspResponse(BufferReader& buffer)
                 {
                     if(unauthorized)
                     {
+#if RTSP_DEBUG
     #if defined(ANDROID)
                         __android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspConnection::HandleRtspResponse: Resending Options!");
     #else
                         cout << "RtspConnection::HandleRtspResponse: Resending Options!" << endl;
     #endif
+#endif
                         rtsp_response_->SetCSeq(rtsp_response_->GetCSeq() + 1);
                         SendOptions(RtspConnection::RTSP_PUSHER);
                         //task_scheduler_->AddTriggerEvent([this]() {
@@ -239,12 +243,13 @@ bool RtspConnection::HandleRtspResponse(BufferReader& buffer)
 		return false;
 		//=========================================================================
 	}
-
+#if RTSP_DEBUG
 	#if defined(ANDROID)
 		__android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspConnection::HandleRtspResponse: ParseResponse ok!");
 	#else
 		cout << "RtspConnection::HandleRtspResponse: ParseResponse ok!" << endl;
 	#endif
+#endif
 	return true;
 }
 
@@ -470,12 +475,13 @@ void RtspConnection::HandleCmdGetParamter()
 
 bool RtspConnection::HandleAuthentication()
 {
+#if RTSP_DEBUG
 	#if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "RtspConnection HandleAuthentication");
 	#else
 			std::cout << "RtspConnection HandleAuthentication" <<  std::endl;
 	#endif
-
+#endif
 	if (authenticator_ != nullptr && !has_auth_) {
     if (authenticator_->Authenticate(rtsp_request_, _nonce)) {
 			has_auth_ = true;
@@ -508,13 +514,13 @@ void RtspConnection::SendOptions(ConnectionMode mode)
 
 	std::shared_ptr<char> req(new char[2048], std::default_delete<char[]>());
 	int size = rtsp_response_->BuildOptionReq(req.get(), 2048, _nonce, authenticator_.get());
-
+#if RTSP_DEBUG
 	#if defined(ANDROID)
 		__android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspConnection::SendOptions:");
 	#else
 		cout << "RtspConnection::SendOptions: " << endl;
 	#endif
-
+#endif
 	SendRtspMessage(req, size);
 }
 

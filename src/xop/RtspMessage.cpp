@@ -579,12 +579,13 @@ size_t RtspRequest::BuildUnauthorizedRes(const char *buf, size_t buf_size)
 
 size_t RtspRequest::BuildUnauthorizedRes(const char* buf, size_t buf_size, const char* realm, const char* nonce)
 {
+#ifdef DEBUG
 	#if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "RtspRequest BuildUnauthorizedRes");
 	#else
 			std::cout << "RtspRequest BuildUnauthorizedRes" <<  std::endl;
 	#endif
-
+#endif
 	memset((void*)buf, 0, buf_size);
 	snprintf((char*)buf, buf_size,
 			"RTSP/1.0 401 Unauthorized\r\n"
@@ -599,23 +600,23 @@ size_t RtspRequest::BuildUnauthorizedRes(const char* buf, size_t buf_size, const
 }
 
 string gen_random(const int len) {
-    
+
     string tmp_s;
     static const char alphanum[] =
         "0123456789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz";
-    
+
     srand( (unsigned) time(NULL) * getpid());
 
     tmp_s.reserve(len);
 
     for (int i = 0; i < len; ++i)
         tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
-    
-    
+
+
     return tmp_s;
-    
+
 }
 
 RtspResponse::RtspResponse()
@@ -849,4 +850,3 @@ int RtspResponse::BuildRecordReq(const char* buf, int buf_size, std::string& non
 	method_ = RECORD;
 	return (int)strlen(buf);
 }
-

@@ -598,6 +598,31 @@ size_t RtspRequest::BuildUnauthorizedRes(const char* buf, size_t buf_size, const
 	return strlen(buf);
 }
 
+string gen_random(const int len) {
+    
+    string tmp_s;
+    static const char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    
+    srand( (unsigned) time(NULL) * getpid());
+
+    tmp_s.reserve(len);
+
+    for (int i = 0; i < len; ++i)
+        tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
+    
+    
+    return tmp_s;
+    
+}
+
+RtspResponse::RtspResponse()
+{
+    session_ = gen_random(8);
+}
+
 bool RtspResponse::ParseResponse(xop::BufferReader *buffer)
 {
 	if (strstr(buffer->Peek(), "\r\n\r\n") != NULL) {

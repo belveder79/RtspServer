@@ -130,6 +130,8 @@ public:
         "OPTIONS", "DESCRIBE", "ANNOUNCE", "SETUP", "RECORD", "RTCP",
         "NONE"
     };
+    
+    RtspResponse();
 
 	bool ParseResponse(xop::BufferReader *buffer);
 

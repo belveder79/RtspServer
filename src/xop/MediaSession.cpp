@@ -195,7 +195,9 @@ std::string MediaSession::GetSdpMessage(std::string ip, std::string session_name
 			snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), 
 					"%s\r\n",
 					media_sources_[chn]->GetAttribute().c_str());
-                     
+                    
+            snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf),"a=fmtp:96 packetization-mode=1; sprop-parameter-sets=Z2QAH6yyAeBr8v/gIgAiIgAAAwACAAADAHgeMGSQ,aOvDyyLA; profile-level-id=64001F\r\n");
+            
 			snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf),											
 					// "a=control:track%d\r\n", chn);
                      "a=control:streamid=%d\r\n", chn);

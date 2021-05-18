@@ -1,7 +1,7 @@
 project(RTSPServer)
 
 # Cmake needs some version information
-CMAKE_MINIMUM_REQUIRED(VERSION 3.19)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 14)
 

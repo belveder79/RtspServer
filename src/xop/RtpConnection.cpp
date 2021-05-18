@@ -366,17 +366,6 @@ int RtpConnection::SendRtpOverTcp(MediaChannelId channel_id, RtpPacket pkt, bool
 	rtpPktPtr[2] = (char)(((pkt.size-4)&0xFF00)>>8);
 	rtpPktPtr[3] = (char)((pkt.size -4)&0xFF);
 
-    /*
-    uint8_t* pk = pkt.data.get();
-    //================================
-    printf("===================================\n");
-    for(int i = 0; i < 32; i+=4)
-    {
-        printf("%02x %02x %02x %02x\n", pk[i], pk[i+1], pk[i+2], pk[i+3]);
-    }
-    printf("===================================\n");
-    */
-
 	conn->Send((char*)rtpPktPtr, pkt.size);
 	return pkt.size;
 }

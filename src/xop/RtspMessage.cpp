@@ -412,6 +412,24 @@ int RtspRequest::BuildOptionRes(const char* buf, int buf_size)
 	return (int)strlen(buf);
 }
 
+/*
+int RtspRequest::BuildTeardownMSG(const char* buf, int buf_size, uint32_t session_id)
+{
+    memset((void*)buf, 0, buf_size);
+    snprintf((char*)buf, buf_size,
+            "TEARDOWN rtsp://127.0.0.1:8554/live RTSP/1.0\r\n"
+            "CSeq: %u\r\n"
+            "Session: %llu\r\n"
+            "\r\n",
+            this->GetCSeq(),
+            session_id);
+
+    method_ = TEARDOWN;
+
+    return (int)strlen(buf);
+}
+*/
+
 int RtspRequest::BuildDescribeRes(const char* buf, int buf_size, const char* sdp)
 {
 	memset((void*)buf, 0, buf_size);
@@ -436,7 +454,7 @@ int RtspRequest::BuildSetupMulticastRes(const char* buf, int buf_size, const cha
 			"RTSP/1.0 200 OK\r\n"
 			"CSeq: %u\r\n"
 			"Transport: RTP/AVP;multicast;destination=%s;source=%s;port=%u-0;ttl=255\r\n"
-			"Session: %u\r\n"
+			"Session: %llu\r\n"
 			"\r\n",
 			this->GetCSeq(),
 			multicast_ip,
@@ -454,7 +472,7 @@ int RtspRequest::BuildSetupUdpRes(const char* buf, int buf_size, uint16_t rtp_ch
 			"RTSP/1.0 200 OK\r\n"
 			"CSeq: %u\r\n"
 			"Transport: RTP/AVP;unicast;client_port=%hu-%hu;server_port=%hu-%hu\r\n"
-			"Session: %u\r\n"
+			"Session: %llu\r\n"
 			"\r\n",
 			this->GetCSeq(),
 			this->GetRtpPort(),
@@ -473,7 +491,7 @@ int RtspRequest::BuildSetupTcpRes(const char* buf, int buf_size, uint16_t rtp_ch
 			"RTSP/1.0 200 OK\r\n"
 			"CSeq: %u\r\n"
 			"Transport: RTP/AVP/TCP;unicast;interleaved=%d-%d\r\n"
-			"Session: %u\r\n"
+			"Session: %llu\r\n"
 			"\r\n",
 			this->GetCSeq(),
 			rtp_chn, rtcp_chn,
@@ -507,7 +525,7 @@ int RtspRequest::BuildTeardownRes(const char* buf, int buf_size, uint32_t sessio
 	snprintf((char*)buf, buf_size,
 			"RTSP/1.0 200 OK\r\n"
 			"CSeq: %d\r\n"
-			"Session: %u\r\n"
+			"Session: %llu\r\n"
 			"\r\n",
 			this->GetCSeq(),
 			session_id);
@@ -521,7 +539,7 @@ int RtspRequest::BuildGetParamterRes(const char* buf, int buf_size, uint32_t ses
 	snprintf((char*)buf, buf_size,
 			"RTSP/1.0 200 OK\r\n"
 			"CSeq: %d\r\n"
-			"Session: %u\r\n"
+			"Session: %llu\r\n"
 			"\r\n",
 			this->GetCSeq(),
 			session_id);
@@ -599,7 +617,25 @@ size_t RtspRequest::BuildUnauthorizedRes(const char* buf, size_t buf_size, const
 	return strlen(buf);
 }
 
-string gen_random(const int len) {
+uint32_t gen_random(const int len) {
+
+    string tmp_s;
+    static const char num[] =
+        "0123456789";
+
+    srand( (unsigned) time(NULL) * getpid());
+
+    tmp_s.reserve(len);
+
+    for (int i = 0; i < len; ++i)
+        tmp_s += num[rand() % (sizeof(num) - 1)];
+
+
+    return std::stoi(tmp_s);
+
+}
+
+string gen_randomString(const int len) {
 
     string tmp_s;
     static const char alphanum[] =
@@ -635,7 +671,7 @@ bool RtspResponse::ParseResponse(xop::BufferReader *buffer)
 		if (ptr != NULL) {
 			char session_id[50] = {0};
 			if (sscanf(ptr, "%*[^:]: %s", session_id) == 1)
-				session_ = session_id;
+				session_ = std::stol(session_id);
 		}
 
 		cseq_++;
@@ -678,6 +714,43 @@ int RtspResponse::BuildOptionReq(const char* buf, int buf_size, std::string& non
 	return (int)strlen(buf);
 }
 
+int RtspResponse::BuildTeardownReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth)
+{
+    if(auth != nullptr && nonce.size() > 0)
+    {
+        memset((void*)buf, 0, buf_size);
+        snprintf((char*)buf, buf_size,
+                "TEARDOWN %s RTSP/1.0\r\n"
+                "CSeq: %u\r\n"
+                "User-Agent: %s\r\n"
+                "Authorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\n"
+                "Session: %llu\r\n"
+                "\r\n",
+                rtsp_url_.c_str(),
+                this->GetCSeq() + 1,
+                user_agent_.c_str(),
+                auth->GetUsername().c_str(), auth->GetRealm().c_str(), nonce.c_str(), rtsp_url_.c_str(),
+                auth->GetResponse(nonce, "TEARDOWN", rtsp_url_.c_str()).c_str(),
+                this->GetSession());
+    }
+    else
+    {
+        memset((void*)buf, 0, buf_size);
+        snprintf((char*)buf, buf_size,
+                "TEARDOWN %s RTSP/1.0\r\n"
+                "CSeq: %u\r\n"
+                "User-Agent: %s\r\n"
+                "Session: %llu\r\n"
+                "\r\n",
+                rtsp_url_.c_str(),
+                this->GetCSeq() + 1,
+                user_agent_.c_str(),
+                this->GetSession());
+    }
+    method_ = TEARDOWN;
+    return (int)strlen(buf);
+}
+
 int RtspResponse::BuildAnnounceReq(const char* buf, int buf_size, const char *sdp, std::string& nonce, Authenticator* auth)
 {
     if(auth != nullptr && nonce.size() > 0)
@@ -689,7 +762,7 @@ int RtspResponse::BuildAnnounceReq(const char* buf, int buf_size, const char *sd
                 "CSeq: %u\r\n"
                 "User-Agent: %s\r\n"
                 "Authorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\n"
-                "Session: %s\r\n"
+                "Session: %llu\r\n"
                 "Content-Length: %d\r\n"
                 "\r\n"
                 "%s",
@@ -698,7 +771,7 @@ int RtspResponse::BuildAnnounceReq(const char* buf, int buf_size, const char *sd
                 user_agent_.c_str(),
                 auth->GetUsername().c_str(), auth->GetRealm().c_str(), nonce.c_str(), rtsp_url_.c_str(),
                 auth->GetResponse(nonce, "ANNOUNCE", rtsp_url_.c_str()).c_str(),
-                this->GetSession().c_str(),
+                this->GetSession(),
                 (int)strlen(sdp),
                 sdp);
     }
@@ -710,14 +783,14 @@ int RtspResponse::BuildAnnounceReq(const char* buf, int buf_size, const char *sd
                 "Content-Type: application/sdp\r\n"
                 "CSeq: %u\r\n"
                 "User-Agent: %s\r\n"
-                "Session: %s\r\n"
+                "Session: %llu\r\n"
                 "Content-Length: %d\r\n"
                 "\r\n"
                 "%s",
                 rtsp_url_.c_str(),
                 this->GetCSeq() + 1,
                 user_agent_.c_str(),
-                this->GetSession().c_str(),
+                this->GetSession(),
                 (int)strlen(sdp),
                 sdp);
     }
@@ -736,12 +809,14 @@ int RtspResponse::BuildDescribeReq(const char* buf, int buf_size, std::string& n
                 "Accept: application/sdp\r\n"
                 "User-Agent: %s\r\n"
                 "Authorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\n"
+                "Session: %llu\r\n"
                 "\r\n",
                 rtsp_url_.c_str(),
                 this->GetCSeq() + 1,
                 user_agent_.c_str(),
                 auth->GetUsername().c_str(), auth->GetRealm().c_str(), nonce.c_str(), rtsp_url_.c_str(),
-                auth->GetResponse(nonce, "DESCRIBE", rtsp_url_.c_str()).c_str());
+                auth->GetResponse(nonce, "DESCRIBE", rtsp_url_.c_str()).c_str(),
+                this->GetSession());
     }
     else
     {
@@ -751,10 +826,12 @@ int RtspResponse::BuildDescribeReq(const char* buf, int buf_size, std::string& n
                 "CSeq: %u\r\n"
                 "Accept: application/sdp\r\n"
                 "User-Agent: %s\r\n"
+                "Session: %llu\r\n"
                 "\r\n",
                 rtsp_url_.c_str(),
                 this->GetCSeq() + 1,
-                user_agent_.c_str());
+                user_agent_.c_str(),
+                this->GetSession());
     }
 	method_ = DESCRIBE;
 	return (int)strlen(buf);
@@ -776,7 +853,7 @@ int RtspResponse::BuildSetupTcpReq(const char* buf, int buf_size, int trackId, s
                 "Transport: RTP/AVP/TCP;unicast;mode=record;interleaved=%d-%d\r\n"
                 "CSeq: %u\r\n"
                 "User-Agent: %s\r\n"
-                "Session: %s\r\n"
+                "Session: %llu\r\n"
                 "Authorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s/streamid=%d\", response=\"%s\"\r\n"
                 "\r\n",
                 rtsp_url_.c_str(),
@@ -785,7 +862,7 @@ int RtspResponse::BuildSetupTcpReq(const char* buf, int buf_size, int trackId, s
                 interleaved[1],
                 this->GetCSeq() + 1,
                 user_agent_.c_str(),
-                this->GetSession().c_str(),
+                this->GetSession(),
                 auth->GetUsername().c_str(), auth->GetRealm().c_str(), nonce.c_str(), rtsp_url_.c_str(), trackId,
                 auth->GetResponse(nonce, "SETUP", (rtsp_url_ + "/streamid=" + std::to_string(trackId)).c_str()).c_str());
     }
@@ -798,7 +875,7 @@ int RtspResponse::BuildSetupTcpReq(const char* buf, int buf_size, int trackId, s
                 "Transport: RTP/AVP/TCP;unicast;mode=record;interleaved=%d-%d\r\n"
                 "CSeq: %u\r\n"
                 "User-Agent: %s\r\n"
-                "Session: %s\r\n"
+                "Session: %llu\r\n"
                 "\r\n",
                 rtsp_url_.c_str(),
                 trackId,
@@ -806,7 +883,7 @@ int RtspResponse::BuildSetupTcpReq(const char* buf, int buf_size, int trackId, s
                 interleaved[1],
                 this->GetCSeq() + 1,
                 user_agent_.c_str(),
-                this->GetSession().c_str());
+                this->GetSession());
     }
 	method_ = SETUP;
 	return (int)strlen(buf);
@@ -822,13 +899,13 @@ int RtspResponse::BuildRecordReq(const char* buf, int buf_size, std::string& non
                 "Range: npt=0.000-\r\n"
                 "CSeq: %u\r\n"
                 "User-Agent: %s\r\n"
-                "Session: %s\r\n"
+                "Session: %llu\r\n"
                 "Authorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\n"
                 "\r\n",
                 rtsp_url_.c_str(),
                 this->GetCSeq() + 1,
                 user_agent_.c_str(),
-                this->GetSession().c_str(),
+                this->GetSession(),
                 auth->GetUsername().c_str(), auth->GetRealm().c_str(), nonce.c_str(), rtsp_url_.c_str(),
                 auth->GetResponse(nonce, "RECORD", rtsp_url_.c_str()).c_str());
     }
@@ -840,12 +917,12 @@ int RtspResponse::BuildRecordReq(const char* buf, int buf_size, std::string& non
                 "Range: npt=0.000-\r\n"
                 "CSeq: %u\r\n"
                 "User-Agent: %s\r\n"
-                "Session: %s\r\n"
+                "Session: %llu\r\n"
                 "\r\n",
                 rtsp_url_.c_str(),
                 this->GetCSeq() + 1,
                 user_agent_.c_str(),
-                this->GetSession().c_str());
+                this->GetSession());
     }
 	method_ = RECORD;
 	return (int)strlen(buf);

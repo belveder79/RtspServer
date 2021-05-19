@@ -7,7 +7,7 @@
 #include "MediaSource.h"
 #include "net/SocketUtil.h"
 
-#define USER_AGENT "Lavf57.83.100" //"-_-"
+#define USER_AGENT "ar4rtsp" //Lavf57.83.100" //"-_-"
 #define RTSP_DEBUG 0
 #define MAX_RTSP_MESSAGE_SIZE 2048
 
@@ -177,7 +177,8 @@ bool RtspConnection::HandleRtspResponse(BufferReader& buffer)
 		#endif
 	}
 #endif
-	if (rtsp_response_->ParseResponse(&buffer)) {
+
+    if (rtsp_response_->ParseResponse(&buffer)) {
 		RtspResponse::Method method = rtsp_response_->GetMethod();
 		switch (method)
 		{
@@ -522,6 +523,35 @@ void RtspConnection::SendOptions(ConnectionMode mode)
 	#endif
 #endif
 	SendRtspMessage(req, size);
+}
+
+void RtspConnection::SendTeardown(ConnectionMode mode)
+{
+    if (rtp_conn_ == nullptr) {
+        rtp_conn_.reset(new RtpConnection(shared_from_this()));
+    }
+
+    auto rtsp = rtsp_.lock();
+    if (!rtsp) {
+        HandleClose();
+        return;
+    }
+
+    conn_mode_ = mode;
+    rtsp_response_->SetUserAgent(USER_AGENT);
+    rtsp_response_->SetRtspUrl(rtsp->GetRtspUrl().c_str());
+
+    std::shared_ptr<char> req(new char[2048], std::default_delete<char[]>());
+    int size = rtsp_response_->BuildTeardownReq(req.get(), 2048, _nonce, authenticator_.get());
+#if RTSP_DEBUG
+    #if defined(ANDROID)
+        __android_log_print(ANDROID_LOG_VERBOSE,  MODULE_NAME, "RtspConnection::SendTeardown:");
+    #else
+        cout << "RtspConnection::SendTeardown: " << endl;
+    #endif
+#endif
+    SendRtspMessage(req, size);
+    rtp_conn_->Teardown();
 }
 
 void RtspConnection::SendAnnounce()

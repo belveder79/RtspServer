@@ -119,6 +119,7 @@ private:
 	bool HandleAuthentication();
 
 	void SendOptions(ConnectionMode mode= RTSP_SERVER);
+    void SendTeardown(ConnectionMode mode= RTSP_SERVER);
 	void SendDescribe();
 	void SendAnnounce();
 	void SendSetup();

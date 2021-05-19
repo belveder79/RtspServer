@@ -89,6 +89,7 @@ public:
 	int BuildSetupUdpRes(const char* buf, int buf_size, uint16_t rtp_chn, uint16_t rtcp_chn, uint32_t session_id);
 	int BuildPlayRes(const char* buf, int buf_size, const char* rtp_info, uint32_t session_id);
 	int BuildTeardownRes(const char* buf, int buf_size, uint32_t session_id);
+    //int BuildTeardownMSG(const char* buf, int buf_size, uint32_t session_id);
 	int BuildGetParamterRes(const char* buf, int buf_size, uint32_t session_id);
 	int BuildNotFoundRes(const char* buf, int buf_size);
 	int BuildServerErrorRes(const char* buf, int buf_size);
@@ -121,14 +122,14 @@ class RtspResponse
 public:
 	enum Method
 	{
-		OPTIONS=0, DESCRIBE, ANNOUNCE, SETUP, RECORD, RTCP,
+		OPTIONS=0, DESCRIBE, ANNOUNCE, SETUP, RECORD, RTCP, TEARDOWN,
 		NONE, 
 	};
     
-    const char* MethodToString[7] =
+    const char* MethodToString[8] =
     {
         "OPTIONS", "DESCRIBE", "ANNOUNCE", "SETUP", "RECORD", "RTCP",
-        "NONE"
+        "TEARDOWN", "NONE"
     };
     
     RtspResponse();
@@ -145,7 +146,7 @@ public:
 	{ return cseq_;  }
     void SetCSeq(uint32_t cseq) { cseq_ = cseq; }
 
-	std::string GetSession() const
+	uint64_t GetSession() const
 	{ return session_; }
 
 	void SetUserAgent(const char *user_agent) 
@@ -158,6 +159,7 @@ public:
 	int BuildDescribeReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
 	int BuildAnnounceReq(const char* buf, int buf_size, const char *sdp, std::string& nonce, Authenticator* auth);
 	int BuildSetupTcpReq(const char* buf, int buf_size, int channel, std::string& nonce, Authenticator* auth);
+    int BuildTeardownReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
 	int BuildRecordReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
     
 private:
@@ -165,7 +167,7 @@ private:
 	uint32_t cseq_ = 0;
 	std::string user_agent_;
 	std::string rtsp_url_;
-	std::string session_;
+    uint64_t session_;
 };
 
 }

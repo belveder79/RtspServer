@@ -126,6 +126,31 @@ void RtspPusher::Close()
 	std::lock_guard<std::mutex> lock(mutex_);
 
 	if (rtsp_conn_ != nullptr) {
+        
+        // send tear-down
+        //TEARDOWN
+        task_scheduler_ = event_loop_->GetTaskScheduler().get();
+        event_loop_->AddTriggerEvent([this]() {
+            rtsp_conn_->SendTeardown(RtspConnection::RTSP_PUSHER);
+        });
+        
+        static xop::Timestamp timestamp;
+        int timeout = 2000;
+        if (timeout <= 0) {
+            timeout = 5000;
+        }
+        
+        timeout -= (int)timestamp.Elapsed();
+        if (timeout < 0) {
+            timeout = 1000;
+        }
+        // we should check authentication status here!
+        do
+        {
+            xop::Timer::Sleep(100);
+            timeout -= 100;
+        } while (rtsp_conn_->IsRecord() && timeout > 0);
+        
 		std::shared_ptr<RtspConnection> rtsp_conn = rtsp_conn_;
 		SOCKET sockfd = rtsp_conn->GetSocket();
 		task_scheduler_->AddTriggerEvent([sockfd, rtsp_conn]() {

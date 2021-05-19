@@ -147,7 +147,7 @@ bool H264Source::HandleFrame(MediaChannelId channel_id, AVFrame frame)
                     nalutypes[cnt] = nalu_type;
                     nalustart[cnt] = i+1; // first element
                     if(cnt > 0)
-                        naluend[cnt-1] = i-4; // last element that counts!
+                        naluend[cnt-1] = i-3; // last element that counts!
                     cnt++;
                 }
                 else if (frame_buf[i] == 0x01 && frame_buf[i-1] == 0x00 && frame_buf[i-2] == 0x00 && frame_buf[i-3] == 0x00)

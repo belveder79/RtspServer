@@ -84,13 +84,13 @@ public:
 
 	int BuildOptionRes(const char* buf, int buf_size);
 	int BuildDescribeRes(const char* buf, int buf_size, const char* sdp);
-	int BuildSetupMulticastRes(const char* buf, int buf_size, const char* multicast_ip, uint16_t port, uint32_t session_id);
-	int BuildSetupTcpRes(const char* buf, int buf_size, uint16_t rtp_chn, uint16_t rtcp_chn, uint32_t session_id);
-	int BuildSetupUdpRes(const char* buf, int buf_size, uint16_t rtp_chn, uint16_t rtcp_chn, uint32_t session_id);
-	int BuildPlayRes(const char* buf, int buf_size, const char* rtp_info, uint32_t session_id);
-	int BuildTeardownRes(const char* buf, int buf_size, uint32_t session_id);
+	int BuildSetupMulticastRes(const char* buf, int buf_size, const char* multicast_ip, uint16_t port, uint64_t session_id);
+	int BuildSetupTcpRes(const char* buf, int buf_size, uint16_t rtp_chn, uint16_t rtcp_chn, uint64_t session_id);
+	int BuildSetupUdpRes(const char* buf, int buf_size, uint16_t rtp_chn, uint16_t rtcp_chn, uint64_t session_id);
+	int BuildPlayRes(const char* buf, int buf_size, const char* rtp_info, uint64_t session_id);
+	int BuildTeardownRes(const char* buf, int buf_size, uint64_t session_id);
     //int BuildTeardownMSG(const char* buf, int buf_size, uint32_t session_id);
-	int BuildGetParamterRes(const char* buf, int buf_size, uint32_t session_id);
+	int BuildGetParamterRes(const char* buf, int buf_size, uint64_t session_id);
 	int BuildNotFoundRes(const char* buf, int buf_size);
 	int BuildServerErrorRes(const char* buf, int buf_size);
 	int BuildUnsupportedRes(const char* buf, int buf_size);

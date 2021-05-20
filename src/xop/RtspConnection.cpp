@@ -22,7 +22,7 @@ RtspConnection::RtspConnection(std::shared_ptr<Rtsp> rtsp, TaskScheduler *task_s
 	, rtsp_request_(new RtspRequest)
 	, rtsp_response_(new RtspResponse)
 {
-#ifdef RTSP_DEBUG
+#if RTSP_DEBUG
 	#if defined(ANDROID)
 			__android_log_print(ANDROID_LOG_ERROR,  MODULE_NAME, "RtspRequest Constructor");
 	#else
@@ -83,7 +83,6 @@ bool RtspConnection::OnRead(BufferReader& buffer)
 	if (buffer.ReadableBytes() > MAX_RTSP_MESSAGE_SIZE) {
 		buffer.RetrieveAll();
 	}
-
 	return true;
 }
 

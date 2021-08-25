@@ -673,7 +673,7 @@ bool RtspResponse::ParseResponse(xop::BufferReader *buffer)
 			if (sscanf(ptr, "%*[^:]: %s", session_id) == 1)
 				try
 				{
-					session_ = std::stoll(session_id);
+					session_ = std::stoull(session_id);
 				}
 				catch (const std::out_of_range& oor)
 				{

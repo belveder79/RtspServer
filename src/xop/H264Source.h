@@ -10,7 +10,7 @@
 namespace xop
 { 
 
-class H264Source : public MediaSource
+class DLL_API H264Source : public MediaSource
 {
 public:
 	static H264Source* CreateNew(uint32_t framerate=25);

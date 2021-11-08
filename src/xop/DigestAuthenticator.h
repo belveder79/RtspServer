@@ -12,7 +12,7 @@
 namespace xop
 {
 
-class DigestAuthenticator : public Authenticator
+class DLL_API DigestAuthenticator : public Authenticator
 {
 public:
 	DigestAuthenticator(std::string realm, std::string username, std::string password);

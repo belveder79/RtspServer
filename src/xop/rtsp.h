@@ -31,7 +31,7 @@ struct RtspUrlInfo
 	std::string suffix;
 };
 
-class Rtsp : public std::enable_shared_from_this<Rtsp>
+class DLL_API Rtsp : public std::enable_shared_from_this<Rtsp>
 {
 public:
 	Rtsp() : has_auth_info_(false), authenticator_(nullptr) {}

@@ -163,7 +163,11 @@ H264File::~H264File()
 
 bool H264File::Open(const char *path)
 {
-    m_file = fopen(path, "rb");
+#if WIN32
+	errno_t err = fopen_s(&m_file, path, "rb");
+#else
+	m_file = fopen(path, "rb");
+#endif
     if(m_file == NULL) {
         return false;
     }

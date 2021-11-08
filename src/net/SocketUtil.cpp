@@ -113,8 +113,12 @@ void SocketUtil::SetRecvBufSize(SOCKET sockfd, int size)
 
 int SocketUtil::GetSendBufSize(SOCKET sockfd)
 {
+#ifdef WIN32
+	char optval;
+#else
     int optval;
-    socklen_t optlen = sizeof(optval);
+#endif
+	socklen_t optlen = sizeof(optval);
     if (getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &optval, &optlen) < 0) {
 #ifdef DEBUG
     #if defined(ANDROID)
@@ -129,7 +133,11 @@ int SocketUtil::GetSendBufSize(SOCKET sockfd)
 
 int SocketUtil::GetRecvBufSize(SOCKET sockfd)
 {
-    int optval;
+#ifdef WIN32
+	char optval;
+#else
+	int optval;
+#endif
     socklen_t optlen = sizeof(optval);
     if (getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &optval, &optlen) < 0) {
 #ifdef DEBUG

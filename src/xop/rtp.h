@@ -15,42 +15,54 @@
 namespace xop
 {
 
-enum TransportMode
-{
-	RTP_OVER_TCP = 1,
-	RTP_OVER_UDP = 2,
-	RTP_OVER_MULTICAST = 3,
-};
+	enum TransportMode
+	{
+		RTP_OVER_TCP = 1,
+		RTP_OVER_UDP = 2,
+		RTP_OVER_MULTICAST = 3,
+	};
 
-typedef struct _RTP_header
-{
-	/* 小端序 */
-	unsigned char csrc:4;
-	unsigned char extension:1;
-	unsigned char padding:1;
-	unsigned char version:2;
-	unsigned char payload:7;
-	unsigned char marker:1;
+	typedef struct _RTP_header
+	{
+		/* 小端序 */
+		unsigned char csrc : 4;
+		unsigned char extension : 1;
+		unsigned char padding : 1;
+		unsigned char version : 2;
+		unsigned char payload : 7;
+		unsigned char marker : 1;
 
-	unsigned short seq;
-	unsigned int   ts;
-	unsigned int   ssrc;
-} RtpHeader;
+		unsigned short seq;
+		unsigned int   ts;
+		unsigned int   ssrc;
+	} RtpHeader;
 
+#ifdef WIN32
+#pragma pack(push,1)
+#endif
 
 //===============  TAKEN FROM https://github.com/sipwise/rtpengine
 struct rtcp_header {
-        unsigned            count:5;    /**< varies by payload type */
-        unsigned            p:1;        /**< padding flag           */
-        unsigned            version:2;  /**< packet type            */
-        unsigned char pt;
-        uint16_t length;
-} __attribute__ ((packed));
+	unsigned            count : 5;    /**< varies by payload type */
+	unsigned            p : 1;        /**< padding flag           */
+	unsigned            version : 2;  /**< packet type            */
+	unsigned char pt;
+	uint16_t length;
+#ifndef WIN32
+} __attribute__((packed));
+#else
+};
+#endif
 
 struct rtcp_packet {
-        struct rtcp_header header;
-        uint32_t ssrc;
-} __attribute__ ((packed));
+	struct rtcp_header header;
+	uint32_t ssrc;
+#ifndef WIN32
+} __attribute__((packed));
+#else
+};
+#pragma pack(pop)
+#endif
 
 //===============================
 

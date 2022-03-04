@@ -18,6 +18,11 @@ Pipe::Pipe()
 
 }
 
+Pipe::~Pipe()
+{
+	Close();
+}
+
 bool Pipe::Create()
 {
 #if defined(WIN32) || defined(_WIN32)

@@ -1,5 +1,5 @@
-// PHZ
-// 2018-6-11
+﻿// PHZ
+// 2021-9-2
 
 #ifndef XOP_RTP_H
 #define XOP_RTP_H
@@ -11,6 +11,9 @@
 #define MAX_RTP_PAYLOAD_SIZE   1420 //1460  1500-20-12-8
 #define RTP_VERSION			   2
 #define RTP_TCP_HEAD_SIZE	   4
+#define RTP_VPX_HEAD_SIZE	   1
+
+#define RTP_HEADER_BIG_ENDIAN  0
 
 namespace xop
 {
@@ -22,8 +25,18 @@ namespace xop
 		RTP_OVER_MULTICAST = 3,
 	};
 
+
 	typedef struct _RTP_header
 	{
+#if RTP_HEADER_BIG_ENDIAN
+		/* 大端序 */
+		unsigned char version : 2;
+		unsigned char padding : 1;
+		unsigned char extension : 1;
+		unsigned char csrc : 4;
+		unsigned char marker : 1;
+		unsigned char payload : 7;
+#else
 		/* 小端序 */
 		unsigned char csrc : 4;
 		unsigned char extension : 1;
@@ -31,41 +44,11 @@ namespace xop
 		unsigned char version : 2;
 		unsigned char payload : 7;
 		unsigned char marker : 1;
-
+#endif 
 		unsigned short seq;
 		unsigned int   ts;
 		unsigned int   ssrc;
 	} RtpHeader;
-
-#ifdef WIN32
-#pragma pack(push,1)
-#endif
-
-//===============  TAKEN FROM https://github.com/sipwise/rtpengine
-struct rtcp_header {
-	unsigned            count : 5;    /**< varies by payload type */
-	unsigned            p : 1;        /**< padding flag           */
-	unsigned            version : 2;  /**< packet type            */
-	unsigned char pt;
-	uint16_t length;
-#ifndef WIN32
-} __attribute__((packed));
-#else
-};
-#endif
-
-struct rtcp_packet {
-	struct rtcp_header header;
-	uint32_t ssrc;
-#ifndef WIN32
-} __attribute__((packed));
-#else
-};
-#pragma pack(pop)
-#endif
-
-//===============================
-
 
 
 struct MediaChannelInfo
@@ -98,6 +81,9 @@ struct RtpPacket
 		: data(new uint8_t[1600], std::default_delete<uint8_t[]>())
 	{
 		type = 0;
+		size = 0;
+		timestamp = 0;
+		last = 0;
 	}
 
 	std::shared_ptr<uint8_t> data;

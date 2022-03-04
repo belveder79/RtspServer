@@ -69,7 +69,7 @@ public:
     void Teardown();
 
     std::string GetRtpInfo(const std::string& rtsp_url);
-    int SendRtpPacket(MediaChannelId channel_id, RtpPacket pkt, bool isRtcp = false);
+    int SendRtpPacket(MediaChannelId channel_id, RtpPacket pkt);
 
     bool IsClosed() const
     { return is_closed_; }
@@ -85,7 +85,7 @@ private:
     void AssembleRTCPMessage();
     void SetFrameType(uint8_t frameType = 0);
     void SetRtpHeader(MediaChannelId channel_id, RtpPacket pkt);
-    int  SendRtpOverTcp(MediaChannelId channel_id, RtpPacket pkt, bool isRtcp = false);
+    int  SendRtpOverTcp(MediaChannelId channel_id, RtpPacket pkt);
     int  SendRtpOverUdp(MediaChannelId channel_id, RtpPacket pkt);
 
 	std::weak_ptr<TcpConnection> rtsp_connection_;

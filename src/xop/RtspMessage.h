@@ -23,7 +23,7 @@ class RtspRequest
 public:
 	enum Method
 	{
-		OPTIONS=0, DESCRIBE, SETUP, PLAY, TEARDOWN, GET_PARAMETER, 
+		OPTIONS=0, DESCRIBE, SETUP, PLAY, TEARDOWN, GET_PARAMETER,
 		RTCP, NONE,
 	};
 
@@ -37,7 +37,7 @@ public:
 	{
 		kParseRequestLine,
 		kParseHeadersLine,
-		//kParseBody,	
+		//kParseBody,
 		kGotAll,
 	};
 
@@ -55,7 +55,7 @@ public:
 
 	Method GetMethod() const
 	{ return method_; }
-    
+
     std::string GetMethodAsString() const
     { return std::string(MethodToString[method_]); }
 
@@ -123,22 +123,22 @@ public:
 	enum Method
 	{
 		OPTIONS=0, DESCRIBE, ANNOUNCE, SETUP, RECORD, RTCP, TEARDOWN,
-		NONE, 
+		NONE,
 	};
-    
+
     const char* MethodToString[8] =
     {
         "OPTIONS", "DESCRIBE", "ANNOUNCE", "SETUP", "RECORD", "RTCP",
         "TEARDOWN", "NONE"
     };
-    
+
     RtspResponse();
 
 	bool ParseResponse(xop::BufferReader *buffer);
 
 	Method GetMethod() const
 	{ return method_; }
-    
+
     std::string GetMethodAsString() const
     { return std::string(MethodToString[method_]); }
 
@@ -146,10 +146,10 @@ public:
 	{ return cseq_;  }
     void SetCSeq(uint32_t cseq) { cseq_ = cseq; }
 
-	uint64_t GetSession() const
+    std::string GetSession() const
 	{ return session_; }
 
-	void SetUserAgent(const char *user_agent) 
+	void SetUserAgent(const char *user_agent)
 	{ user_agent_ = std::string(user_agent); }
 
 	void SetRtspUrl(const char *url)
@@ -161,13 +161,13 @@ public:
 	int BuildSetupTcpReq(const char* buf, int buf_size, int channel, std::string& nonce, Authenticator* auth);
     int BuildTeardownReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
 	int BuildRecordReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
-    
+
 private:
 	Method method_;
 	uint32_t cseq_ = 0;
 	std::string user_agent_;
 	std::string rtsp_url_;
-    uint64_t session_;
+    std::string session_;
 };
 
 }

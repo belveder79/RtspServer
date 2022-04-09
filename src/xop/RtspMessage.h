@@ -158,7 +158,7 @@ public:
 	int BuildOptionReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth = nullptr);
 	int BuildDescribeReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
 	int BuildAnnounceReq(const char* buf, int buf_size, const char *sdp, std::string& nonce, Authenticator* auth);
-	int BuildSetupTcpReq(const char* buf, int buf_size, int channel, std::string& nonce, Authenticator* auth);
+	int BuildSetupTcpReq(const char* buf, int buf_size, int channel, bool appendSessionId, std::string& nonce, Authenticator* auth);
     int BuildTeardownReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
 	int BuildRecordReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
     

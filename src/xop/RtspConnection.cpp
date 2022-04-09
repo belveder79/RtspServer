@@ -615,11 +615,11 @@ void RtspConnection::SendSetup()
 
 	if (media_session->GetMediaSource(channel_0) && !rtp_conn_->IsSetup(channel_0)) {
 		rtp_conn_->SetupRtpOverTcp(channel_0, 0, 1);
-		size = rtsp_response_->BuildSetupTcpReq(buf.get(), 2048, channel_0, _nonce, authenticator_.get());
+		size = rtsp_response_->BuildSetupTcpReq(buf.get(), 2048, channel_0, _appendSessionIdOnSetup, _nonce, authenticator_.get());
 	}
 	else if (media_session->GetMediaSource(channel_1) && !rtp_conn_->IsSetup(channel_1)) {
 		rtp_conn_->SetupRtpOverTcp(channel_1, 2, 3);
-		size = rtsp_response_->BuildSetupTcpReq(buf.get(), 2048, channel_1, _nonce, authenticator_.get());
+		size = rtsp_response_->BuildSetupTcpReq(buf.get(), 2048, channel_1, _appendSessionIdOnSetup, _nonce, authenticator_.get());
 	}
 	else {
 		size = rtsp_response_->BuildRecordReq(buf.get(), 2048, _nonce, authenticator_.get());

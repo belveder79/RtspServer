@@ -846,7 +846,7 @@ int RtspResponse::BuildDescribeReq(const char* buf, int buf_size, std::string& n
 	return (int)strlen(buf);
 }
 
-int RtspResponse::BuildSetupTcpReq(const char* buf, int buf_size, int trackId, std::string& nonce, Authenticator* auth)
+int RtspResponse::BuildSetupTcpReq(const char* buf, int buf_size, int trackId, bool appendSessionId, std::string& nonce, Authenticator* auth)
 {
 	int interleaved[2] = { 0, 1 };
 	if (trackId == 1) {
@@ -856,43 +856,91 @@ int RtspResponse::BuildSetupTcpReq(const char* buf, int buf_size, int trackId, s
     if(auth != nullptr && nonce.size() > 0)
     {
         memset((void*)buf, 0, buf_size);
-        snprintf((char*)buf, buf_size,
-                // "SETUP %s/track%d RTSP/1.0\r\n"
-                "SETUP %s/streamid=%d RTSP/1.0\r\n"
-                "Transport: RTP/AVP/TCP;unicast;mode=record;interleaved=%d-%d\r\n"
-                "CSeq: %u\r\n"
-                "User-Agent: %s\r\n"
-                "Session: %llu\r\n"
-                "Authorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s/streamid=%d\", response=\"%s\"\r\n"
-                "\r\n",
-                rtsp_url_.c_str(),
-                trackId,
-                interleaved[0],
-                interleaved[1],
-                this->GetCSeq() + 1,
-                user_agent_.c_str(),
-                this->GetSession(),
-                auth->GetUsername().c_str(), auth->GetRealm().c_str(), nonce.c_str(), rtsp_url_.c_str(), trackId,
-                auth->GetResponse(nonce, "SETUP", (rtsp_url_ + "/streamid=" + std::to_string(trackId)).c_str()).c_str());
+		if (appendSessionId)
+		{
+			snprintf((char*)buf, buf_size,
+				// "SETUP %s/track%d RTSP/1.0\r\n"
+				"SETUP %s/streamid=%d RTSP/1.0\r\n"
+				"Transport: RTP/AVP/TCP;unicast;mode=record;interleaved=%d-%d\r\n"
+				"CSeq: %u\r\n"
+				"User-Agent: %s\r\n"
+				"Session: %llu\r\n"
+				"Authorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s/streamid=%d\", response=\"%s\"\r\n"
+				"\r\n",
+				rtsp_url_.c_str(),
+				trackId,
+				interleaved[0],
+				interleaved[1],
+				this->GetCSeq() + 1,
+				user_agent_.c_str(),
+				this->GetSession(),
+				auth->GetUsername().c_str(), auth->GetRealm().c_str(), nonce.c_str(), rtsp_url_.c_str(), trackId,
+				auth->GetResponse(nonce, "SETUP", (rtsp_url_ + "/streamid=" + std::to_string(trackId)).c_str()).c_str());
+		}
+		else
+		{
+			snprintf((char*)buf, buf_size,
+				// "SETUP %s/track%d RTSP/1.0\r\n"
+				"SETUP %s/streamid=%d RTSP/1.0\r\n"
+				"Transport: RTP/AVP/TCP;unicast;mode=record;interleaved=%d-%d\r\n"
+				"CSeq: %u\r\n"
+				"User-Agent: %s\r\n"
+				// "Session: %llu\r\n"
+				"Authorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s/streamid=%d\", response=\"%s\"\r\n"
+				"\r\n",
+				rtsp_url_.c_str(),
+				trackId,
+				interleaved[0],
+				interleaved[1],
+				this->GetCSeq() + 1,
+				user_agent_.c_str(),
+				//     this->GetSession(),
+				auth->GetUsername().c_str(), auth->GetRealm().c_str(), nonce.c_str(), rtsp_url_.c_str(), trackId,
+				auth->GetResponse(nonce, "SETUP", (rtsp_url_ + "/streamid=" + std::to_string(trackId)).c_str()).c_str());
+		}
     }
     else
     {
-        memset((void*)buf, 0, buf_size);
-        snprintf((char*)buf, buf_size,
-                // "SETUP %s/track%d RTSP/1.0\r\n"
-                "SETUP %s/streamid=%d RTSP/1.0\r\n"
-                "Transport: RTP/AVP/TCP;unicast;mode=record;interleaved=%d-%d\r\n"
-                "CSeq: %u\r\n"
-                "User-Agent: %s\r\n"
-                "Session: %llu\r\n"
-                "\r\n",
-                rtsp_url_.c_str(),
-                trackId,
-                interleaved[0],
-                interleaved[1],
-                this->GetCSeq() + 1,
-                user_agent_.c_str(),
-                this->GetSession());
+		if (appendSessionId)
+		{
+			memset((void*)buf, 0, buf_size);
+			snprintf((char*)buf, buf_size,
+				// "SETUP %s/track%d RTSP/1.0\r\n"
+				"SETUP %s/streamid=%d RTSP/1.0\r\n"
+				"Transport: RTP/AVP/TCP;unicast;mode=record;interleaved=%d-%d\r\n"
+				"CSeq: %u\r\n"
+				"User-Agent: %s\r\n"
+				"Session: %llu\r\n"
+				"\r\n",
+				rtsp_url_.c_str(),
+				trackId,
+				interleaved[0],
+				interleaved[1],
+				this->GetCSeq() + 1,
+				user_agent_.c_str(),
+				this->GetSession()
+			);
+		}
+		else
+		{
+			memset((void*)buf, 0, buf_size);
+			snprintf((char*)buf, buf_size,
+				// "SETUP %s/track%d RTSP/1.0\r\n"
+				"SETUP %s/streamid=%d RTSP/1.0\r\n"
+				"Transport: RTP/AVP/TCP;unicast;mode=record;interleaved=%d-%d\r\n"
+				"CSeq: %u\r\n"
+				"User-Agent: %s\r\n"
+				//       "Session: %llu\r\n"
+				"\r\n",
+				rtsp_url_.c_str(),
+				trackId,
+				interleaved[0],
+				interleaved[1],
+				this->GetCSeq() + 1,
+				user_agent_.c_str()
+				//        this->GetSession()
+			);
+		}
     }
 	method_ = SETUP;
 	return (int)strlen(buf);

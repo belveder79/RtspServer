@@ -34,8 +34,13 @@ struct RtspUrlInfo
 class DLL_API Rtsp : public std::enable_shared_from_this<Rtsp>
 {
 public:
-	Rtsp() : has_auth_info_(false), authenticator_(nullptr) {}
+	Rtsp() : appendSessionIdOnSetup(true), has_auth_info_(false), authenticator_(nullptr) {}
 	virtual ~Rtsp() {}
+
+	virtual void AppendSessionIdOnSetup(bool appendSessionId)
+	{
+		appendSessionIdOnSetup = appendSessionId;
+	}
 
   virtual void SetAuthenticator(std::shared_ptr<Authenticator>authenticator)
   {
@@ -94,6 +99,8 @@ protected:
 
 	virtual MediaSession::Ptr LookMediaSession(MediaSessionId sessionId)
 	{ return nullptr; }
+
+	bool appendSessionIdOnSetup = true;
 
 	bool has_auth_info_ = false;
   std::shared_ptr<Authenticator> authenticator_;

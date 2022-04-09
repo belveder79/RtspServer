@@ -79,7 +79,16 @@ public:
     { return _nonce; }
     void SetNonce(std::string nonce)
     { _nonce = nonce; }
-    
+
+	bool GetAppendSessionIdOnSetup() const
+	{
+		return _appendSessionIdOnSetup;
+	}
+	void SetAppendSessionIdOnSetup(bool appendSessionIdOnSetup)
+	{
+		_appendSessionIdOnSetup = appendSessionIdOnSetup;
+	}
+
     uint32_t GetCseq() const
     {
         return rtsp_response_->GetCSeq();
@@ -136,6 +145,8 @@ private:
 	bool has_auth_ = true;
 	std::string _nonce;
 	std::shared_ptr<Authenticator> authenticator_;
+
+	bool _appendSessionIdOnSetup = true;
 
 	std::shared_ptr<Channel>       rtp_channel_;
 	std::shared_ptr<Channel>       rtcp_channels_[MAX_MEDIA_CHANNEL];

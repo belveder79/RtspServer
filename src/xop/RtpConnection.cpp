@@ -1,4 +1,4 @@
-﻿// PHZ
+// PHZ
 // 2018-9-30
 
 #include "RtpConnection.h"
@@ -289,8 +289,18 @@ int RtpConnection::SendRtpOverTcp(MediaChannelId channel_id, RtpPacket pkt)
 	return pkt.size;
 }
 
+bool RtpConnection::SetPeerRtpAddressPort(MediaChannelId channel_id, std::string ip, uint16_t port)
+{
+    peer_rtp_addr_[channel_id].sin_addr.s_addr = inet_addr(ip.c_str());
+    peer_rtp_addr_[channel_id].sin_port = htons(port);
+    return true;
+}
+
 int RtpConnection::SendRtpOverUdp(MediaChannelId channel_id, RtpPacket pkt)
 {
+    // TODO: CLEMENS THIS NEEDS TO BE SET OUTSIDE!!!!
+    // peer_rtp_addr_[channel_id].sin_addr.s_addr = inet_addr("127.0.0.1"); peer_rtp_addr_[channel_id].sin_port = htons(8000);
+    
 	int ret = sendto(rtpfd_[channel_id], (const char*)pkt.data.get()+4, pkt.size-4, 0,
 					(struct sockaddr *)&(peer_rtp_addr_[channel_id]), sizeof(struct sockaddr_in));
                    

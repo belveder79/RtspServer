@@ -1,4 +1,4 @@
-﻿#ifndef XOP_RTSP_PUSHER_H
+#ifndef XOP_RTSP_PUSHER_H
 #define XOP_RTSP_PUSHER_H
 
 #include <mutex>
@@ -24,6 +24,8 @@ public:
 	bool IsConnected();
 
 	bool PushFrame(MediaChannelId channelId, AVFrame frame);
+    
+    void SetTransferModeUdp() { udpmode_ = true; }
 
 private:
 	friend class RtspConnection;
@@ -36,6 +38,7 @@ private:
 	std::mutex mutex_;
 	std::shared_ptr<RtspConnection> rtsp_conn_;
 	std::shared_ptr<MediaSession> media_session_;
+    bool udpmode_ = false;
 };
 
 }

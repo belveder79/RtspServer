@@ -8,6 +8,10 @@ set(CMAKE_CXX_STANDARD 14)
 SET(ARCHSTR ${ANDROID_ABI})
 message(STATUS "Architecture: ${ARCHSTR}")
 
+IF(APPLE AND NOT IOS)
+  SET(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
+ENDIF(APPLE AND NOT IOS)
+
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 #=======================================
 # USER DEFINED VARIABLES
@@ -96,3 +100,24 @@ IF(BUILD_EXECUTABLE)
 	ENDIF(UNIX AND NOT APPLE)
 
 ENDIF(BUILD_EXECUTABLE)
+
+
+IF(APPLE AND NOT IOS)
+  set_target_properties(net
+                      PROPERTIES
+                      XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
+  set_target_properties(xop
+                      PROPERTIES
+                      XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
+	IF(BUILD_EXECUTABLE)
+	  set_target_properties(rtsp_pusher
+	                      PROPERTIES
+	                      XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
+	  set_target_properties(rtsp_h264_file
+	                      PROPERTIES
+	                      XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
+	  set_target_properties(rtsp_server
+	                      PROPERTIES
+	                      XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
+  ENDIF(BUILD_EXECUTABLE)
+ENDIF(APPLE AND NOT IOS)

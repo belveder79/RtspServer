@@ -89,6 +89,11 @@ public:
 		_appendSessionIdOnSetup = appendSessionIdOnSetup;
 	}
 
+    void SetUdpMode(bool udpmode)
+    {
+        _udpmode = udpmode;
+    }
+    
     uint32_t GetCseq() const
     {
         return rtsp_response_->GetCSeq();
@@ -147,6 +152,7 @@ private:
 	std::shared_ptr<Authenticator> authenticator_;
 
 	bool _appendSessionIdOnSetup = true;
+    bool _udpmode = false;
 
 	std::shared_ptr<Channel>       rtp_channel_;
 	std::shared_ptr<Channel>       rtcp_channels_[MAX_MEDIA_CHANNEL];

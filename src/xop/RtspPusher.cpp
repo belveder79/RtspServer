@@ -85,6 +85,7 @@ int RtspPusher::OpenUrl(std::string url, int msec)
         rtsp_conn_.reset(new RtspConnection(shared_from_this(), task_scheduler_, tcpSocket.GetSocket()));
         rtsp_conn_->SetNonce(nonce);
         rtsp_conn_->SetCseq(cseq);
+        rtsp_conn_->SetUdpMode(udpmode_);
         rtsp_conn_->SetAppendSessionIdOnSetup(appendSessionIdOnSetup);
         event_loop_->AddTriggerEvent([this]() {
             rtsp_conn_->SendOptions(RtspConnection::RTSP_PUSHER);

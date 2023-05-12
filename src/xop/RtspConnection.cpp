@@ -177,6 +177,7 @@ bool RtspConnection::HandleRtspResponse(BufferReader& buffer)
 	}
 #endif
 
+    //printf("%s\n", buffer.AsString().c_str());
     if (rtsp_response_->ParseResponse(&buffer)) {
 		RtspResponse::Method method = rtsp_response_->GetMethod();
 		switch (method)
@@ -614,17 +615,42 @@ void RtspConnection::SendSetup()
 	}
 
 	if (media_session->GetMediaSource(channel_0) && !rtp_conn_->IsSetup(channel_0)) {
-		rtp_conn_->SetupRtpOverTcp(channel_0, 0, 1);
-		size = rtsp_response_->BuildSetupTcpReq(buf.get(), 2048, channel_0, _appendSessionIdOnSetup, _nonce, authenticator_.get());
+        
+        if(_udpmode)
+        {
+            rtp_conn_->SetupRtpOverUdp(channel_0, 0, 1);
+            size = rtsp_response_->BuildSetupUdpReq(buf.get(), 2048, channel_0, _appendSessionIdOnSetup, rtp_conn_.get()->GetRtpPort(channel_0), _nonce, authenticator_.get());
+        }
+        else
+        {
+            rtp_conn_->SetupRtpOverTcp(channel_0, 0, 1);
+            size = rtsp_response_->BuildSetupTcpReq(buf.get(), 2048, channel_0, _appendSessionIdOnSetup, _nonce, authenticator_.get());
+        }
 	}
 	else if (media_session->GetMediaSource(channel_1) && !rtp_conn_->IsSetup(channel_1)) {
-		rtp_conn_->SetupRtpOverTcp(channel_1, 2, 3);
-		size = rtsp_response_->BuildSetupTcpReq(buf.get(), 2048, channel_1, _appendSessionIdOnSetup, _nonce, authenticator_.get());
+        
+        if(_udpmode)
+        {
+            rtp_conn_->SetupRtpOverUdp(channel_1, 2, 3);
+            size = rtsp_response_->BuildSetupUdpReq(buf.get(), 2048, channel_1, _appendSessionIdOnSetup, rtp_conn_.get()->GetRtpPort(channel_1), _nonce, authenticator_.get());
+        }
+        else
+        {
+            rtp_conn_->SetupRtpOverTcp(channel_1, 2, 3);
+            size = rtsp_response_->BuildSetupTcpReq(buf.get(), 2048, channel_1, _appendSessionIdOnSetup, _nonce, authenticator_.get());
+        }
 	}
 	else {
+        if(_udpmode)
+        {
+            if(media_session->GetMediaSource(channel_0) && rtsp_response_.get()->GetRtpFrom() > 0)
+                rtp_conn_.get()->SetPeerRtpAddressPort(channel_0, rtp_conn_.get()->GetIp().c_str(), rtsp_response_.get()->GetRtpFrom());
+            if(media_session->GetMediaSource(channel_1) && rtsp_response_.get()->GetRtpFrom() > 0)
+                rtp_conn_.get()->SetPeerRtpAddressPort(channel_1, rtp_conn_.get()->GetIp().c_str(), rtsp_response_.get()->GetRtpFrom()+1);
+        }
 		size = rtsp_response_->BuildRecordReq(buf.get(), 2048, _nonce, authenticator_.get());
 	}
-
+    // printf("%s\n", buf.get());
 	SendRtspMessage(buf, size);
 }
 

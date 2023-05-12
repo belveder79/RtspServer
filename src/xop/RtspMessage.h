@@ -148,6 +148,12 @@ public:
 
     std::string GetSession() const
 	{ return session_; }
+    
+    uint16_t GetRtpFrom() const
+    { return rtpportfrom_; }
+    
+    uint16_t GetRtpTo() const
+    { return rtpportto_; }
 
 	void SetUserAgent(const char *user_agent)
 	{ user_agent_ = std::string(user_agent); }
@@ -159,6 +165,7 @@ public:
 	int BuildDescribeReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
 	int BuildAnnounceReq(const char* buf, int buf_size, const char *sdp, std::string& nonce, Authenticator* auth);
 	int BuildSetupTcpReq(const char* buf, int buf_size, int channel, bool appendSessionId, std::string& nonce, Authenticator* auth);
+    int BuildSetupUdpReq(const char* buf, int buf_size, int trackId, bool appendSessionId, int clientport, std::string& nonce, Authenticator* auth);
     int BuildTeardownReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
 	int BuildRecordReq(const char* buf, int buf_size, std::string& nonce, Authenticator* auth);
 
@@ -168,6 +175,8 @@ private:
 	std::string user_agent_;
 	std::string rtsp_url_;
     std::string session_;
+    uint16_t rtpportfrom_;
+    uint16_t rtpportto_;
 };
 
 }

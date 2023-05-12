@@ -56,6 +56,8 @@ int main(int argc, char **argv)
 	session->AddSource(xop::channel_0, xop::H264Source::CreateNew());
 	// session->AddSource(xop::channel_1, xop::AACSource::CreateNew(44100, 2, false));
 	rtsp_pusher->AddSession(session);
+    //rtsp_pusher->SetTransferModeUdp();
+    rtsp_pusher->AppendSessionIdOnSetup(false); // THIS IS IMPORTANT! THE SESSION COMES FROM THE SERVER!
 
 /*
     std::string serverIP("127.0.0.1");

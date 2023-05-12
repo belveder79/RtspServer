@@ -35,6 +35,8 @@ public:
     bool SetupRtpOverUdp(MediaChannelId channel_id, uint16_t rtp_port, uint16_t rtcp_port);
     bool SetupRtpOverMulticast(MediaChannelId channel_id, std::string ip, uint16_t port);
 
+    bool SetPeerRtpAddressPort(MediaChannelId channel_id, std::string ip, uint16_t port);
+    
     uint32_t GetRtpSessionId() const
     { return (uint32_t)((size_t)(this)); }
 

@@ -33,6 +33,11 @@ public:
 	uint32_t WritableBytes() const
 	{  return (uint32_t)(buffer_.size() - writer_index_); }
 
+    std::string AsString() const
+    {
+        return std::string(buffer_.begin(), buffer_.end());
+    }
+    
 	char* Peek() 
 	{ return Begin() + reader_index_; }
 
